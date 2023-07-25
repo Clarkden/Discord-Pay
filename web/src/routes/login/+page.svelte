@@ -1,31 +1,6 @@
 <script lang="ts">
   import Navbar from "$lib/components/navigation/Navbar.svelte";
   import LoginWithDiscord from "$lib/components/buttons/LoginWithDiscord.svelte";
-  import { login } from "$lib/utils";
-
-  let email: string;
-  let password: string;
-  let loading: "loading" | "idle" | "error" = "idle";
-  let errorMessage = "";
-
-  const handleEmailLogin = async () => {
-    loading = "loading";
-    const response = await login(email, password);
-
-    if (!response.success) {
-      switch (response.message) {
-        case "Failed to authenticate.":
-          errorMessage = "Invalid email or password.";
-          break;
-        default:
-          errorMessage = "Something went wrong. Please try again.";
-          break;
-      }
-      loading = "error";
-    } else {
-      loading = "idle";
-    }
-  };
 </script>
 
 <section class="flex flex-col items-center h-screen w-full">
@@ -38,17 +13,17 @@
     >
       <h1 class="text-center font-bold text-2xl">Sign in to account</h1>
       <p class="text-center font-light text-lg mb-4">
-        Sign up or login to get started for free, no credit card required!
+        Login with Discord to get started for free, no credit card required!
       </p>
       <LoginWithDiscord />
 
-      <div class="flex flex-row items-center gap-3 mt-4">
+      <!-- <div class="flex flex-row items-center gap-3 mt-4">
         <div class="w-full h-[2px] bg-black" />
         <h1 class="text-center text-black">OR</h1>
         <div class="w-full h-[2px] bg-black" />
-      </div>
+      </div> -->
 
-      {#if errorMessage}
+      <!-- {#if errorMessage}
         <p class="text-center text-red-500">
           {errorMessage}
         </p>
@@ -121,7 +96,7 @@
           </button>
         {/if}
         <a class="text-sm underline hover:text-neutral-500" href="/forgotPassword">Forgot Password?</a>
-      </form>
+      </form> -->
     </div>
   </container>
 </section>

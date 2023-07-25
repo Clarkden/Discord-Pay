@@ -11,7 +11,7 @@
 </script>
 
 <div
-  class="flex flex-row justify-between items-center px-5 w-full h-14 top-0 border-b border-gray-300"
+  class="flex flex-row justify-between items-center px-5 w-full h-14 top-0 border-b border-black"
 >
   <a href="/"><h1>Discord Pay</h1></a>
   <ul class="hidden md:flex flex-row gap-3">

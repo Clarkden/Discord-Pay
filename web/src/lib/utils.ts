@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { pb } from "./db/connection";
 import { error } from "@sveltejs/kit";
 
@@ -54,22 +54,54 @@ export const register = async (
 
 export const loginWithDiscord = async () => {
   try {
-    const authData = await pb
-      .collection("users")
-      .authWithOAuth2({ provider: "discord" });
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-export const updateAuthStatus = async (token: string, model: any) => {
-  try {
-    await axios.post("/api/updateAuthStatus", {
-      token,
-      model,
+    const authData = await pb.collection("users").authWithOAuth2({
+      provider: "discord",
+      scopes: ["identify", "guilds", "bot"],
     });
-  } catch (error) {
+
+    console.log(authData)
+
+    const { meta, record } = authData;
+
+    if (!meta || !record) {
+      console.error("Authentication data is missing.");
+      return;
+    }
+
+    let checkTokenRecord;
+
+    try {
+      checkTokenRecord = await pb
+        .collection("tokens")
+        .getFirstListItem(`userID="${record.id}"`);
+    } catch (error) {
+      console.log(error);
+    }
+
+    if (checkTokenRecord) {
+      await pb.collection("tokens").update(checkTokenRecord.id, {
+        accessToken: meta.accessToken,
+        refreshToken: meta.refreshToken,
+        discordID: meta.id,
+        discordUsername: meta.username,
+      });
+
+      return;
+    }
+
+    const data = {
+      userID: record.id,
+      accessToken: meta.accessToken,
+      refreshToken: meta.refreshToken,
+      discordID: meta.id,
+      discordUsername: meta.username,
+    };
+
+    const tokenRecord = await pb.collection("tokens").create(data);
+  } catch (error: any) {
     console.log(error);
+  } finally {
+    window.location.replace("/dashboard");
   }
 };
 
@@ -78,9 +110,27 @@ export const resetPassword = async (email: string) => {
     await axios.post("/api/resetPassword", {
       email,
     });
-    return {success: true, message: "Password Reset Email Sent"}
+    return { success: true, message: "Password Reset Email Sent" };
   } catch (err: any) {
     console.log(err);
-    return {success: false, message: err.response.data.message}
+    return { success: false, message: err.response.data.message };
   }
 };
+
+// export const checkBotInServer = async (userID: string) => {
+//   try {
+//     const { accessToken } = await pb
+//       .collection("tokens")
+//       .getFirstListItem(`userID="${userID}"`);
+
+//     const response = await axios.get(`/api/checkBotInGuild`, {
+//       headers: {
+//         Authorization: `Bearer ${accessToken}`,
+//       },
+//     });
+
+//     console.log(response);
+//   } catch (error: any) {
+//     console.log(error);
+//   }
+// };
