@@ -1,5 +1,5 @@
 import { serializeNonPOJO } from "$lib/utils";
-import { pb } from "$lib/db/connection";
+import { pb } from "$lib/db/pocketbaseConnection";
 import { VERCEL } from "$env/dynamic/private";
 
 export const handle = async ({ event, resolve }) => {
@@ -22,17 +22,22 @@ export const handle = async ({ event, resolve }) => {
 
   const response = await resolve(event);
 
-  if (!VERCEL) {
-    response.headers.set(
-      "set-cookie",
-      event.locals.pb.authStore.exportToCookie({ secure: false })
-    );
-  } else {
-    response.headers.set(
-      "set-cookie",
-      event.locals.pb.authStore.exportToCookie({ secure: true })
-    );
-  }
+  response.headers.set(
+    "set-cookie",
+    event.locals.pb.authStore.exportToCookie({ secure: false })
+  );
+
+//   if (!VERCEL) {
+//     response.headers.set(
+//       "set-cookie",
+//       event.locals.pb.authStore.exportToCookie({ secure: false })
+//     );
+//   } else {
+//     response.headers.set(
+//       "set-cookie",
+//       event.locals.pb.authStore.exportToCookie({ secure: true })
+//     );
+//   }
 
   return response;
 };

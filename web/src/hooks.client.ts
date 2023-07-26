@@ -1,4 +1,4 @@
-import { pb } from '$lib/db/connection'
+import { pb } from '$lib/db/pocketbaseConnection'
 import { currentUser } from '$lib/stores/user'
 
 pb.authStore.loadFromCookie(document.cookie)

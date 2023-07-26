@@ -1,5 +1,5 @@
 import axios, { AxiosError } from "axios";
-import { pb } from "./db/connection";
+import { pb } from "./db/pocketbaseConnection";
 import { currentUser } from "$lib/stores/user";
 
 export const serializeNonPOJO = (obj: any) => {

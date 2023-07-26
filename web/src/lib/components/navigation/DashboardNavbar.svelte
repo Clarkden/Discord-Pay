@@ -17,7 +17,7 @@
   <ul class="hidden md:flex flex-row gap-3">
     <button
       melt={$trigger}
-      class="border border-gray-300 rounded-full w-10 h-10 overflow-hidden flex items-center justify-center hover:bg-sky-100 cursor-pointer"
+      class="border border-black rounded-full w-10 h-10 overflow-hidden flex items-center justify-center hover:bg-sky-100 cursor-pointer"
     >
       <img
         src={$page.data.user.avatar || profile}

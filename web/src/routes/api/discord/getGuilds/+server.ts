@@ -1,9 +1,20 @@
-import { error } from "@sveltejs/kit";
+import { error, json } from "@sveltejs/kit";
 import axios from "axios";
 import { DISCORD_BOT_AUTH_TOKEN } from "$env/static/private";
+import { client } from "$lib/db/redisConnection";
 
-export const GET = async ({ locals, request, params }: any) => {
+export const GET = async ({ locals }: any) => {
   try {
+    const cachedGuilds = await client.hget(
+      locals.pb.authStore.model.id,
+      "guilds"
+    );
+
+
+    if (cachedGuilds) {
+      return json(JSON.parse(cachedGuilds))
+    }
+
     const { data: userGuilds } = await axios.get(
       `https://discord.com/api/v10/users/@me/guilds`,
       {
@@ -31,6 +42,12 @@ export const GET = async ({ locals, request, params }: any) => {
         return botGuild.id === guild.id;
       });
     });
+
+    await client.hset(
+      locals.pb.authStore.model.id,
+      "guilds",
+      JSON.stringify(mutualGuilds)
+    );
 
     return new Response(JSON.stringify(mutualGuilds));
   } catch (err: any) {

@@ -1,28 +1,26 @@
 <script lang="ts">
   import DashboardNavbar from "$lib/components/navigation/DashboardNavbar.svelte";
   import axios from "axios";
-  import { onMount } from "svelte";
-  import { page } from "$app/stores";
 
   export let data: any;
   $: ({ user } = data);
 
-  //   let guilds: any[] = [];
-  //   let loading: "loading" | "idle" | "error" = "loading";
+  const getGuilds = async () => {
+    try {
+      const res = await axios.get("/api/discord/getGuilds");
+      const guilds = res.data;
 
-  //   const getGuilds = async () => {
-  //     try {
-  //       const { data } = await axios.get("/api/discord/getGuilds");
-  //       guilds = data;
-  //     } catch (err: any) {
-  //       console.log(err);
-  //     }
-  //   };
+      console.log(res);
 
-  //   onMount(async () => {
-  //     getGuilds();
-  //     loading = "idle";
-  //   });
+      if (res.status === 200) {
+        return guilds;
+      } else {
+        throw new Error(guilds);
+      }
+    } catch (err: any) {
+      console.log(err);
+    }
+  };
 </script>
 
 <DashboardNavbar />
@@ -33,26 +31,37 @@
     {#if user.role === "" || user.role == "free"}
       <a
         href="/dashboard/upgrade"
-        class="w-[300px] h-[150px] border border-gray-300 rounded-md flex flex-col items-start p-2 justify-between hover:bg-sky-50"
+        class="w-[300px] h-[150px] border border-black rounded-md flex flex-col items-start p-2 justify-between hover:bg-sky-50"
       >
         <h1>Upgade to Premium</h1>
       </a>
     {/if}
   </container>
   <container class="flex flex-col gap-3">
-    {#each $page.data.guilds as guild (guild.id)}
-      <a
-        href="/dashboard/guilds/{guild.id}"
-        class="w-full h-[150px] border border-gray-300 rounded-md flex flex-col items-start p-2 justify-between hover:bg-sky-50"
-      >
-        <h1>{guild.name}</h1>
-        <p>{guild.id}</p>
-        <img
-          src={`https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`}
-          alt="Guild Icon"
-          class="w-10 h-10"
-        />
-      </a>
-    {/each}
+    {#await getGuilds()}
+      <div
+        class="w-full h-[150px] border border-black rounded-md flex flex-col items-start p-2 justify-between hover:bg-sky-50 animate-pulse bg-gray-100"
+      />
+      <div
+        class="w-full h-[150px] border border-black rounded-md flex flex-col items-start p-2 justify-between hover:bg-sky-50 animate-pulse bg-gray-100"
+      />
+    {:then guilds}
+      {#each guilds as guild (guild.id)}
+        <a
+          href="/dashboard/guilds/{guild.id}"
+          class="w-full h-fit border border-black rounded-md flex flex-row items-center p-2 justify-start hover:bg-sky-50 gap-3"
+        >
+          <img
+            src={`https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`}
+            alt="Guild Icon"
+            class="w-10 h-10"
+          />
+          <h1>{guild.name}</h1>
+          <!-- <p>{guild.id}</p> -->
+        </a>
+      {/each}
+    {:catch error}
+      <p>{error.message}</p>
+    {/await}
   </container>
 </section>
