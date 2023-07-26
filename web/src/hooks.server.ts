@@ -1,8 +1,9 @@
 import { serializeNonPOJO } from "$lib/utils";
 import { pb } from "$lib/db/connection";
+import { VERCEL } from "$env/dynamic/private";
 
 export const handle = async ({ event, resolve }) => {
-  event.locals.pb = pb
+  event.locals.pb = pb;
 
   event.locals.pb.authStore.loadFromCookie(
     event.request.headers.get("cookie") || ""
@@ -14,17 +15,24 @@ export const handle = async ({ event, resolve }) => {
       event.locals.user = serializeNonPOJO(event.locals.pb.authStore.model);
     }
   } catch (_) {
-    console.log('catch', _)
+    console.log("catch", _);
     event.locals.pb.authStore.clear();
     event.locals.user = undefined;
   }
 
   const response = await resolve(event);
 
-  response.headers.set(
-    "set-cookie",
-    event.locals.pb.authStore.exportToCookie({ secure: false })
-  );
+  if (!VERCEL) {
+    response.headers.set(
+      "set-cookie",
+      event.locals.pb.authStore.exportToCookie({ secure: false })
+    );
+  } else {
+    response.headers.set(
+      "set-cookie",
+      event.locals.pb.authStore.exportToCookie({ secure: true })
+    );
+  }
 
   return response;
 };
