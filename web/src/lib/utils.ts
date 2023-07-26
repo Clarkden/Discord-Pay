@@ -1,7 +1,6 @@
 import axios, { AxiosError } from "axios";
 import { pb } from "./db/connection";
-import { error } from "@sveltejs/kit";
-import { REST } from "discord.js";
+import { currentUser } from "$lib/stores/user";
 
 export const serializeNonPOJO = (obj: any) => {
   return JSON.parse(JSON.stringify(obj));
@@ -57,10 +56,8 @@ export const loginWithDiscord = async () => {
   try {
     const authData = await pb.collection("users").authWithOAuth2({
       provider: "discord",
-      scopes: ["identify", "guilds", "bot"],
+      scopes: ["identify", "guilds", "bot", "applications.commands"],
     });
-
-    console.log(authData);
 
     const { meta, record } = authData;
 
@@ -69,36 +66,15 @@ export const loginWithDiscord = async () => {
       return;
     }
 
-    let checkTokenRecord;
-
-    try {
-      checkTokenRecord = await pb
-        .collection("tokens")
-        .getFirstListItem(`userID="${record.id}"`);
-    } catch (error) {
-      console.log(error);
-    }
-
-    if (checkTokenRecord) {
-      await pb.collection("tokens").update(checkTokenRecord.id, {
-        accessToken: meta.accessToken,
-        refreshToken: meta.refreshToken,
-        discordID: meta.id,
-        discordUsername: meta.username,
-      });
-
-      return;
-    }
-
-    const data = {
-      userID: record.id,
-      accessToken: meta.accessToken,
-      refreshToken: meta.refreshToken,
-      discordID: meta.id,
-      discordUsername: meta.username,
+    const updateData = {
+      discordID: authData?.meta?.id,
+      discordUsername: authData?.meta?.username,
+      accessToken: authData?.meta?.accessToken,
+      refreshToken: authData?.meta?.refreshToken,
     };
 
-    const tokenRecord = await pb.collection("tokens").create(data);
+    await pb.collection("users").update(record.id, updateData);
+
   } catch (error: any) {
     console.log(error);
   } finally {
@@ -118,38 +94,13 @@ export const resetPassword = async (email: string) => {
   }
 };
 
-const getDiscordUser = async () => {
-  const response = await pb
-    .collection("tokens")
-    .getFirstListItem(`userID="${pb?.authStore?.model?.id}"`);
+export const getGuilds = async () => {
 
-  return response;
-};
-
-export const getDiscordUserServers = async () => {
   try {
-    const rest = new REST({ version: "10" }).setToken(
-      getDiscordUser().items[0].accessToken
-    );
-
-    const api = new API
-  } catch (err: any) {}
+    const response = await axios.get("/api/discord/getGuilds");
+    console.log(response)
+    return response  || [];
+  } catch (err: any) {
+    console.log(err);
+  }
 };
-
-// export const checkBotInServer = async (userID: string) => {
-//   try {
-//     const { accessToken } = await pb
-//       .collection("tokens")
-//       .getFirstListItem(`userID="${userID}"`);
-
-//     const response = await axios.get(`/api/checkBotInGuild`, {
-//       headers: {
-//         Authorization: `Bearer ${accessToken}`,
-//       },
-//     });
-
-//     console.log(response);
-//   } catch (error: any) {
-//     console.log(error);
-//   }
-// };

@@ -1,7 +1,7 @@
 import { serializeNonPOJO } from "$lib/utils.js";
 import { redirect } from "@sveltejs/kit";
 
-export const load = ({ locals }) => {
+export const load = ({ locals }: any) => {
   if (locals.pb.authStore.isValid) {
     return {
       user: serializeNonPOJO(locals.pb.authStore.model),

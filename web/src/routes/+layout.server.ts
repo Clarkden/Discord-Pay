@@ -1,6 +1,6 @@
 import { serializeNonPOJO } from "$lib/utils.js";
 
-export const load = ({ locals }) => {
+export const load = ({ locals }: any) => {
 
     // if(!locals.pb.authStore.)
 
