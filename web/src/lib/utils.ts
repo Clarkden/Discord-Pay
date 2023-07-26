@@ -1,6 +1,7 @@
 import axios, { AxiosError } from "axios";
 import { pb } from "./db/connection";
 import { error } from "@sveltejs/kit";
+import { REST } from "discord.js";
 
 export const serializeNonPOJO = (obj: any) => {
   return JSON.parse(JSON.stringify(obj));
@@ -59,7 +60,7 @@ export const loginWithDiscord = async () => {
       scopes: ["identify", "guilds", "bot"],
     });
 
-    console.log(authData)
+    console.log(authData);
 
     const { meta, record } = authData;
 
@@ -115,6 +116,24 @@ export const resetPassword = async (email: string) => {
     console.log(err);
     return { success: false, message: err.response.data.message };
   }
+};
+
+const getDiscordUser = async () => {
+  const response = await pb
+    .collection("tokens")
+    .getFirstListItem(`userID="${pb?.authStore?.model?.id}"`);
+
+  return response;
+};
+
+export const getDiscordUserServers = async () => {
+  try {
+    const rest = new REST({ version: "10" }).setToken(
+      getDiscordUser().items[0].accessToken
+    );
+
+    const api = new API
+  } catch (err: any) {}
 };
 
 // export const checkBotInServer = async (userID: string) => {
