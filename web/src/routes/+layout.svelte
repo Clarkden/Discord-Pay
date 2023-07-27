@@ -9,4 +9,6 @@
   /> -->
 </svelte:head>
 
-<slot />
+<div class="h-screen w-full">
+  <slot />
+</div>

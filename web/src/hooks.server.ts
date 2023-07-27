@@ -1,43 +1,39 @@
-import { serializeNonPOJO } from "$lib/utils";
-import { pb } from "$lib/db/pocketbaseConnection";
+import { createInstance } from "$lib//db/pocketbaseConnection";
+import type { Handle } from "@sveltejs/kit";
 import { VERCEL } from "$env/dynamic/private";
 
-export const handle = async ({ event, resolve }) => {
-  event.locals.pb = pb;
+export const handle: Handle = async ({ event, resolve }) => {
+  const pb = createInstance();
 
-  event.locals.pb.authStore.loadFromCookie(
-    event.request.headers.get("cookie") || ""
-  );
-
+  // load the store data from the request cookie string
+  pb.authStore.loadFromCookie(event.request.headers.get("cookie") || "");
   try {
-    if (event.locals.pb.authStore.isValid) {
-      await event.locals.pb.collection("users").authRefresh();
-      event.locals.user = serializeNonPOJO(event.locals.pb.authStore.model);
+    // get an up-to-date auth store state by verifying and refreshing the loaded auth model (if any)
+    if (pb.authStore.isValid) {
+      await pb.collection("users").authRefresh();
     }
   } catch (_) {
-    console.log("catch", _);
-    event.locals.pb.authStore.clear();
-    event.locals.user = undefined;
+    // clear the auth store on failed refresh
+    pb.authStore.clear();
   }
+
+  event.locals.pb = pb;
+  event.locals.user = pb.authStore.model;
 
   const response = await resolve(event);
 
-  response.headers.set(
-    "set-cookie",
-    event.locals.pb.authStore.exportToCookie({ secure: false })
-  );
-
-//   if (!VERCEL) {
-//     response.headers.set(
-//       "set-cookie",
-//       event.locals.pb.authStore.exportToCookie({ secure: false })
-//     );
-//   } else {
-//     response.headers.set(
-//       "set-cookie",
-//       event.locals.pb.authStore.exportToCookie({ secure: true })
-//     );
-//   }
+  // send back the default 'pb_auth' cookie to the client with the latest store state
+  if (!VERCEL) {
+    response.headers.set(
+      "set-cookie",
+      pb.authStore.exportToCookie({ httpOnly: false, secure: false })
+    );
+  } else {
+    response.headers.set(
+      "set-cookie",
+      pb.authStore.exportToCookie({ httpOnly: false, secure: true })
+    );
+  }
 
   return response;
 };

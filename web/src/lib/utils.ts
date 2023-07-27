@@ -7,6 +7,7 @@ export const serializeNonPOJO = (obj: any) => {
 };
 
 export const logout = async () => {
+  console.log("logging out")
   try {
     await axios.post("/api/logout");
     window.location.replace("/login");

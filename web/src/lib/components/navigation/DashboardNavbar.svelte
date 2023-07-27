@@ -3,18 +3,16 @@
   import { logout } from "$lib/utils";
   import profile from "$lib/assets/images/standardUserImage.svg";
   import { createDropdownMenu } from "@melt-ui/svelte";
-  import { writable } from "svelte/store";
   import { slide } from "svelte/transition";
 
-  const { trigger, menu, item, separator } = createDropdownMenu();
-  const hideMenu = writable(false);
+  const { trigger, menu, item } = createDropdownMenu();
   let hideMobileNav = true;
 </script>
 
 <div
-  class="flex flex-row justify-between items-center px-5 w-full h-14 top-0 border-b border-black"
+  class="flex flex-row justify-between items-center px-5 w-full h-14 min-h-[56px] top-0 border-b border-black"
 >
-  <a href="/"><h1>Discord Pay</h1></a>
+  <a href="/"><h1 class="font-bold">Discord Pay</h1></a>
   <ul class="hidden md:flex flex-row gap-3">
     <button
       melt={$trigger}

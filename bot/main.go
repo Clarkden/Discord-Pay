@@ -48,6 +48,13 @@ func main() {
 		log.Println("Left a guild", g.Guild.ID)
 	})
 
+	discord.AddHandler(func(s *discordgo.Session, m *discordgo.GuildMemberAdd) {
+		log.Println("New member joined", m.Member.User.Username)
+	})
+
+	discord.AddHandler(func(s *discordgo.Session, m *discordgo.GuildMemberRemove) {
+		log.Println("Member left", m.Member.User.Username)
+	})
 
 	err = discord.Open()
 	if err != nil {
