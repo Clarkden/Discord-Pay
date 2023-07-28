@@ -1,30 +1,35 @@
 <script lang="ts">
   import { page } from "$app/stores";
-  import axios from "axios";
+  import { pb } from "$lib/db/pocketbaseConnection";
+  import { onMount } from "svelte";
 
-  // $: if ($page.params.id !== undefined) {
-  //   guild = getGuildData();
-  // }
+  let signupPages: any;
 
-  // const getGuildData = async () => {
-  //   try {
-  //     const res = await axios.get(
-  //       `/api/discord/getGuild?id=${$page.params.id}`
-  //     );
+  const getSignupPages = async () => {
+    try {
+      const signupPages = pb.collection("signup_pages").getList(1, 4, {
+        filter: `guild_id="${$page.params.guild_id}"`,
+      });
 
-  //     const guild = res.data;
+      return signupPages;
 
-  //     if (res.status === 200) {
-  //       return guild;
-  //     } else {
-  //       throw new Error(guild);
-  //     }
-  //   } catch (err: any) {
-  //     console.log(err);
-  //   }
-  // };
+      // if (signupPages === 200) {
+      //   return channels;
+      // } else {
+      //   throw new Error(channels);
+      // }
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
-  // let guild = getGuildData();
+  onMount(async () => {
+    signupPages = await getSignupPages();
+  });
+
+  $: if ($page.params.guild_id) {
+    signupPages = getSignupPages();
+  }
 </script>
 
 <div class="flex flex-col flex-grow w-full">
@@ -53,13 +58,38 @@
           <path d="M12 9l0 6" />
         </svg>
       </a>
+      {#await signupPages}
+        <div
+          class="w-full border border-black rounded-md p-2 hover:bg-indigo-50 flex flex-row gap-2 items-center justify-center animate-pulse"
+        >
+          Loading
+        </div>
+        <div
+          class="w-full border border-black rounded-md p-2 hover:bg-indigo-50 flex flex-row gap-2 items-center justify-center animate-pulse"
+        >
+          Loading
+        </div>
+      {:then signupPages}
+        {#each signupPages.items as signupPage (signupPage.id)}
+          <div>
+            <a
+              href={`/dashboard/guilds/${$page.params.guild_id}/sign-up/${signupPage.id}/preview`}
+              class="w-full border border-black rounded-md p-2 hover:bg-indigo-50 flex flex-row gap-2 items-center justify-center"
+              >{signupPage.mint_name || "Untitled"}
+              <span class="text-indigo-500">{signupPage.draft ? "(Draft)" : ""}</span>
+            </a>
+          </div>
+        {/each}
+        {#if signupPages.items.length > 3}
+          <div>
+            <a
+              href={`/dashboard/guilds/${$page.params.guild_id}/sign-up/view-all`}
+              class="w-full border border-black rounded-md p-2 hover:bg-indigo-50 flex flex-row gap-2 items-center justify-center"
+              >View All
+            </a>
+          </div>
+        {/if}
+      {/await}
     </div>
   </div>
-  <!-- {#await guild then guild}
-    {#each guild.roles as role (role.id)}
-      <p>{role.name}</p>
-    {/each}
-  {:catch}
-    <h1>Something went wrong</h1>
-  {/await} -->
 </div>

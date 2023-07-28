@@ -1,11 +1,17 @@
 <script lang="ts">
+  import { goto } from "$app/navigation";
   import { page } from "$app/stores";
+  import { pb } from "$lib/db/pocketbaseConnection";
   import axios from "axios";
   import { onMount } from "svelte";
-  import { twMerge } from "tailwind-merge";
 
-  let welcomeChannel: string = "";
+  export let data: any;
+  $: ({ user } = data);
+
+  let welcomeChannel = "";
   let guildChannels: any = [];
+  let givenRole = "";
+  let mintName = "";
 
   const getGuild = async () => {
     try {
@@ -47,6 +53,29 @@
     }
   };
 
+  const saveSignUp = async () => {
+    if (!pb.authStore.isValid) return;
+
+    if (welcomeChannel === "" || givenRole === "") return;
+
+    try {
+      const document = await pb.collection("signup_pages").create({
+        guild_id: $page.params.guild_id,
+        user_id: user.id,
+        welcome_channel: welcomeChannel,
+        given_role: givenRole,
+        draft: true,
+        mint_name: mintName,
+      });
+
+      goto(
+        `/dashboard/guilds/${$page.params.guild_id}/sign-up/${document.id}/preview`
+      );
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   onMount(async () => {
     guildChannels = await getGuildChannels();
   });
@@ -82,7 +111,7 @@
       <h1>Loading</h1>
     {:then guild}
       <div
-        class={"w-fit h-fit rounded-md flex flex-row items-center p-2 justify-start gap-3 font-base text-lg"}
+        class={"w-fit h-fit rounded-md flex flex-row items-center p-2 justify-start gap-3 font-base text-lg "}
       >
         <img
           src={`https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`}
@@ -94,13 +123,46 @@
       </div>
       <div>
         <h1>Select Welcome Channel</h1>
-        <select>
+        <select
+          bind:value={welcomeChannel}
+          class="border border-black rounded-md p-2"
+        >
+          <option value="">None</option>
           {#each guildChannels as channel (channel.id)}
             {#if channel.type === 0}
               <option value={channel.id}>{channel.name}</option>
             {/if}
           {/each}
         </select>
+      </div>
+      <div>
+        <h1>Select Role to Give</h1>
+        <select
+          bind:value={givenRole}
+          class="border border-black rounded-md p-2"
+        >
+          <option value="">None</option>
+          {#each guild.roles as role (role.id)}
+            <!-- {#if channel.type === 0} -->
+            <option value={role.id}>{role.name}</option>
+            <!-- {/if} -->
+          {/each}
+        </select>
+      </div>
+      <div>
+        <h1>Enter Mint Name</h1>
+        <input
+          type="text"
+          bind:value={mintName}
+          class="border border-black rounded-md p-2"
+        />
+      </div>
+      <div>
+        <button
+          on:click={saveSignUp}
+          class="rounded-md border border-black p-2 hover:bg-indigo-100"
+          >Preview</button
+        >
       </div>
     {:catch err}
       <p>{err}</p>

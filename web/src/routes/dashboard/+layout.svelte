@@ -11,7 +11,7 @@
   const getGuilds = async () => {
     if (!user) return;
 
-    console.log("Getting Guilds");
+    // console.log("Getting Guilds");
 
     try {
       const res = await axios.get("/api/discord/getGuilds");
