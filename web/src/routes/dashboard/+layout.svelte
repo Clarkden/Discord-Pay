@@ -15,7 +15,7 @@
 
     try {
       const res = await axios.get("/api/discord/getGuilds");
-    //   console.log(res);
+      //   console.log(res);
       const guilds = res.data;
 
       //   console.log(res);
@@ -105,11 +105,11 @@
             />
             <h1 class="">Couldn't Fetch Guilds</h1>
             <!-- <p>{guild.id}</p> -->
-        </div>
+          </div>
         {/await}
       </div>
       <div
-        class="p-2 md:p-5 col-span-1 md:col-span-3 lg:col-span-4 flex flex-grow flex-col gap-3 items-start justify-start "
+        class="p-2 md:p-5 col-span-1 md:col-span-3 lg:col-span-4 flex flex-grow flex-col gap-3 items-start justify-start overflow-y-scroll"
       >
         <slot />
       </div>

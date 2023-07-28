@@ -28,7 +28,7 @@ export const GET = async ({ locals }: any) => {
       `https://discord.com/api/v10/users/@me/guilds`,
       {
         headers: {
-          Authorization: "Bearer " + locals.pb.authStore.model.accessToken,
+          Authorization: "Bearer " + locals.pb.authStore.model.access_token,
         },
       }
     );

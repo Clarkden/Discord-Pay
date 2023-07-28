@@ -68,10 +68,10 @@ export const loginWithDiscord = async () => {
     }
 
     const updateData = {
-      discordID: authData?.meta?.id,
-      discordUsername: authData?.meta?.username,
-      accessToken: authData?.meta?.accessToken,
-      refreshToken: authData?.meta?.refreshToken,
+      discord_id: authData?.meta?.id,
+      discord_username: authData?.meta?.username,
+      access_token: authData?.meta?.access_token,
+      refresh_token: authData?.meta?.refresh_token,
     };
 
     await pb.collection("users").update(record.id, updateData);
