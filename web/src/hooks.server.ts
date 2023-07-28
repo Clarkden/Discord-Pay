@@ -1,6 +1,6 @@
 import { createInstance } from "$lib//db/pocketbaseConnection";
 import type { Handle } from "@sveltejs/kit";
-import { VERCEL } from "$env/dynamic/private";
+import { ENVIRONMENT } from "$env/static/private";
 
 export const handle: Handle = async ({ event, resolve }) => {
   const pb = createInstance();
@@ -23,7 +23,7 @@ export const handle: Handle = async ({ event, resolve }) => {
   const response = await resolve(event);
 
   // send back the default 'pb_auth' cookie to the client with the latest store state
-  if (!VERCEL) {
+  if (ENVIRONMENT === "development" ) {
     response.headers.set(
       "set-cookie",
       pb.authStore.exportToCookie({ httpOnly: false, secure: false })

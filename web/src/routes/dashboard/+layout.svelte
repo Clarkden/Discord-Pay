@@ -66,7 +66,7 @@
                 href="/dashboard/guilds/{guild.id}"
                 class={twMerge(
                   "w-full h-fit border border-black rounded-md flex flex-row items-center p-2 justify-start gap-3 font-base text-lg",
-                  guild.id === $page.params.id
+                  guild.id === $page.params.guild_id
                     ? "bg-indigo-400 text-white"
                     : "bg-white hover:bg-indigo-200 text-black"
                 )}

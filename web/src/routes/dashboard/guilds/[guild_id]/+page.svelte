@@ -32,7 +32,7 @@
     <div class="col-span-1 flex flex-col gap-2">
       <h1>Signup Pages</h1>
       <a
-        href={`/dashboard/guilds/${$page.params.id}/sign-up/create`}
+        href={`/dashboard/guilds/${$page.params.guild_id}/sign-up/create`}
         class="w-full border border-black rounded-md p-2 hover:bg-indigo-50 flex flex-row gap-2 items-center justify-center"
         >Create New
         <svg

@@ -70,7 +70,7 @@ export const GET = async ({ locals }: any) => {
 
     return new Response(JSON.stringify(mutualGuilds));
   } catch (err: any) {
-    console.log(err);
-    throw new Error(500, { message: err.message });
+    // console.log(err);
+    throw new Error(err.message);
   }
 };

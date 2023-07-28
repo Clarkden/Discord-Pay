@@ -8,15 +8,17 @@ export const GET = async ({ locals, url }: any) => {
   }
 
   try {
-    const { data: guild } = await axios.get(
-      `https://discord.com/api/v10/guilds/${id}`,
+    const { data } = await axios.get(
+      `https://discord.com/api/v10/guilds/${id}/channels`,
       {
         headers: {
           Authorization: "Bot " + DISCORD_BOT_AUTH_TOKEN,
         },
       }
     );
-    return new Response(JSON.stringify(guild));
+
+    // console.log(data)
+    return new Response(JSON.stringify(data));
   } catch (e) {
     // console.log(e);
     throw new Error("Error");
